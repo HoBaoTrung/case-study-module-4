@@ -1,0 +1,47 @@
+<!-- fragments/productList.html -->
+<div id="productListContent" th:fragment="productListContent">
+    <div class="row row-cols-1 row-cols-md-3 g-4" >
+        <div th:each="p : ${products}" class="col-12 col-sm-6 col-lg-4">
+            <div class="product-item">
+                <div class="card h-100 shadow-sm">
+                    <div class="image-container">
+                        <img th:src="${p.imageUrl}" class="card-img-top product-image" th:alt="${p.productName}"
+                             onerror="this.src='https://via.placeholder.com/300x200'">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${p.productName}"></h5>
+                        <p class="card-text text-danger fw-bold">
+                            <span th:text="${#numbers.formatInteger(p.price, 0, 'COMMA') + '₫'}"></span>
+                        </p>
+                        <h6 class="text">Số lượng: <span th:text="${p.stockQuantity}"></span></h6>
+                        <a href="#" class="btn btn-primary w-100 mb-3">Xem chi tiết</a>
+                        <button th:if="${p.stockQuantity > 0}" class="btn btn-danger w-100 add-to-cart"
+                                th:attr="data-id=${p.productId}, data-name=${p.productName}">
+                            <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
+                        </button>
+                        <h6 th:if="${p.stockQuantity == 0}" class="text-danger text-center">(Hết hàng)</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav th:if="${totalPages > 1}" class="mt-4">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link page-link-ajax" href="#" th:data-page="${currentPage - 2}">Previous</a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link page-link-ajax" href="#" th:data-page="${i - 1}" th:text="${i}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                <a class="page-link page-link-ajax" href="#" th:data-page="${currentPage}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
+
+
