@@ -31,6 +31,7 @@ public class CartController {
                 totalPrice =  totalPrice.add(item.getLineTotal());
             }
         }
+        System.out.println("Checkout Error: " + model.getAttribute("checkoutError"));
         model.addAttribute("cartItems", cart);
         model.addAttribute("totalPrice", totalPrice);
         return "cart/view"; // trang hiển thị giỏ hàng

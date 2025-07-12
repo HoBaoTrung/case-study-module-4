@@ -1,5 +1,6 @@
 package com.codegym.mobilestore.service.product;
 
+import com.codegym.mobilestore.model.Item;
 import com.codegym.mobilestore.model.Product;
 import com.codegym.mobilestore.repository.IProductRepository;
 import com.codegym.mobilestore.specification.ProductSpecification;
@@ -10,7 +11,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
+import javax.persistence.EntityManager;
+import javax.persistence.ParameterMode;
+import javax.persistence.StoredProcedureQuery;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -105,4 +110,41 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(Integer id) {
         return productRepository.findById(id).orElse(null);
     }
+
+    @Autowired
+    private EntityManager entityManager;
+
+    public boolean checkProductQuantity(int productId, int quantity) {
+        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("sp_check_product_quantity");
+
+        query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);  // productId
+        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);  // quantity
+        query.registerStoredProcedureParameter(3, Boolean.class, ParameterMode.OUT); // enough
+
+        query.setParameter(1, productId);
+        query.setParameter(2, quantity);
+
+        query.execute();
+
+        return (Boolean) query.getOutputParameterValue(3); // lấy OUT parameter theo vị trí
+    }
+
+
+    @Override
+    public void checkAllProductQuantities(List<Item> cart) throws Exception {
+        for (Item item : cart) {
+            boolean enough = checkProductQuantity(
+                    item.getProduct().getProductId(),
+                    item.getQuantity()
+            );
+
+            if (!enough) {
+                Product p=getProductById(item.getProduct().getProductId());
+                throw new SQLException( p.getProductName() + " chỉ còn " +
+                        p.getStockQuantity() + " sản phẩm.");
+            }
+        }
+    }
+
+
 }
