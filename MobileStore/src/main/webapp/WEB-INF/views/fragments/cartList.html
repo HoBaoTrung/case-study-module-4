@@ -1,0 +1,53 @@
+<div id="cart-table" th:fragment="cartContent">
+
+  <table th:if="${!#lists.isEmpty(cartItems)}" class="table">
+    <tr>
+      <th></th>
+      <th>Tên sản phẩm</th>
+      <th>Đơn giá</th>
+      <th>Số lượng</th>
+      <th>Thành tiền</th>
+    </tr>
+
+    <tr th:each="item : ${cartItems}">
+      <td>
+        <img style="width: 70px; height: auto;" th:src="@{${item.product.imageUrl}}">
+      </td>
+      <td>
+        <p th:text="${item.product.productName}"></p>
+      </td>
+      <td>
+        <p th:text="${#numbers.formatInteger(item.product.price, 0, 'COMMA') + '₫'}"></p>
+      </td>
+
+      <td>
+        <button class="btn btn-danger" th:attr="data-id=${item.product.getProductId()}" onclick="updateCart(this, 'sub')">-</button>
+
+        <input type="number" min="0" disabled style="width: 50px; text-align: center;"
+               th:value="${item.quantity}">
+
+        <button class="btn btn-success" th:data-id="${item.product.getProductId()}" onclick="updateCart(this, 'add')">+</button>
+
+        <button class="btn btn-outline-danger btn-delete"
+                th:attr="data-id=${item.product.getProductId()}, data-name=${item.product.productName}">
+          Xóa
+        </button>
+      </td>
+
+      <td>
+        <p th:text="${#numbers.formatDecimal(item.getLineTotal(), 0, 'COMMA', 0, 'POINT') + ' ₫'}"></p>
+      </td>
+    </tr>
+
+    <tr>
+      <td colspan="4" class="text-end total">Tổng tiền:</td>
+      <td th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT') + ' ₫'}"></td>
+    </tr>
+    <tr>
+      <td colspan="5" class="text-end">
+        <a href="/checkout" class="btn btn-success mt-3 me-2">Thanh toán</a>
+      </td>
+    </tr>
+  </table>
+
+</div>

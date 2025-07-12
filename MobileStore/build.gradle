@@ -36,6 +36,10 @@ dependencies {
     implementation("com.cloudinary:cloudinary-taglib:1.29.0")
     implementation 'org.springframework.boot:spring-boot-autoconfigure:2.7.0'
 
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.2'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 }
 
 test {

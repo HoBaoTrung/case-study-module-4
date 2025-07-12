@@ -1,9 +1,15 @@
 package com.codegym.mobilestore.model;
 
+import java.math.BigDecimal;
+
 public class Item {
     private Product product;
 
     private int quantity;
+
+    public BigDecimal getLineTotal() {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
 
     public Product getProduct() {
         return product;

@@ -1,5 +1,6 @@
 package com.codegym.mobilestore.controller;
 
+import com.codegym.mobilestore.dto.CartUpdateRequest;
 import com.codegym.mobilestore.model.Item;
 import com.codegym.mobilestore.model.Product;
 import com.codegym.mobilestore.service.product.ProductService;
@@ -7,16 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Controller
 @RequestMapping("/carts")
@@ -24,10 +21,24 @@ public class CartController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("")
+    public String viewCart(HttpSession session, Model model) {
+        List<Item> cart = (List<Item>) session.getAttribute("cart");
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        if (cart == null) cart = new ArrayList<>();
+        else{
+            for (Item item : cart) {
+                totalPrice =  totalPrice.add(item.getLineTotal());
+            }
+        }
+        model.addAttribute("cartItems", cart);
+        model.addAttribute("totalPrice", totalPrice);
+        return "cart/view"; // trang hiển thị giỏ hàng
+    }
 
     @PostMapping
     @ResponseBody
-    public ResponseEntity<String> handleCartAction(
+    public ResponseEntity<String> addCart(
             @RequestParam("id") Integer productId,
             HttpSession session) {
 
@@ -63,5 +74,65 @@ public class CartController {
         }
         return -1;
     }
+
+    @PutMapping
+    @ResponseBody
+    public ResponseEntity<String> updateCart(@RequestBody CartUpdateRequest request,
+                                             HttpSession session) {
+        String type = request.getType();
+        Integer productId = request.getId();
+
+        List<Item> cart = (List<Item>) session.getAttribute("cart");
+
+        if (cart != null) {
+            int index = getIndex(productId, cart);
+            if (index != -1) {
+                Item item = cart.get(index);
+                int quantity = item.getQuantity();
+
+                if ("add".equals(type)) {
+                    item.setQuantity(quantity + 1);
+                } else if ("sub".equals(type)) {
+                    if (quantity > 1) {
+                        item.setQuantity(quantity - 1);
+                    } else {
+                        cart.remove(index);
+                    }
+                }
+            }
+        }
+
+        return ResponseEntity.ok("Đã cập nhật giỏ hàng");
+    }
+
+    @DeleteMapping
+    @ResponseBody
+    public ResponseEntity<String> deleteCart(@RequestParam("id") Integer productId, HttpSession session) {
+        List<Item> cart = (List<Item>) session.getAttribute("cart");
+        Iterator<Item> iterator = cart.iterator();
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
+            if (item.getProduct().getProductId() == productId) {
+                iterator.remove();
+                break;
+            }
+        }
+        return ResponseEntity.ok("Đã xóa sản phầm ra khỏi giỏ hàng");
+    }
+
+    @GetMapping("/fragment")
+    public String getCartFragment(Model model, HttpSession session) {
+        List<Item> cart = (List<Item>) session.getAttribute("cart");
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+            for (Item item : cart) {
+                totalPrice =  totalPrice.add(item.getLineTotal());
+            }
+
+        model.addAttribute("cartItems", cart);
+        model.addAttribute("totalPrice", totalPrice);
+        return "fragments/cartList :: cartContent";
+    }
+
 
 }
