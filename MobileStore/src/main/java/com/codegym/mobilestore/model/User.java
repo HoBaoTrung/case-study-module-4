@@ -1,58 +1,61 @@
 package com.codegym.mobilestore.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-public class Customer {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int customerId;
-    private String customerName;
-    private String customerAddress;
-    private String customerPhone;
+    private Long id;
+    private String username;
+    private String password;
 
-    public Customer() {}
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "users_roles",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private Set<Role> roles;
 
-    public Customer(int customerId, String customerName, String customerAddress, String customerPhone) {
-        this.customerId = customerId;
-        this.customerName = customerName;
-        this.customerAddress = customerAddress;
-        this.customerPhone = customerPhone;
+    public User() {
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public User(Long id, String username, String password, Set<Role> roles) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.roles = roles;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
+    public Long getId() {
+        return id;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public String getUsername() {
+        return username;
     }
 
-    public String getCustomerAddress() {
-        return customerAddress;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setCustomerAddress(String customerAddress) {
-        this.customerAddress = customerAddress;
+    public String getPassword() {
+        return password;
     }
 
-    public String getCustomerPhone() {
-        return customerPhone;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 }

@@ -7,7 +7,6 @@ function refreshCartView() {
 // AJAX xử lý cộng/trừ số lượng
 function updateCart(button, type) {
     const productId = $(button).attr("data-id");
-
     $.ajax({
         url: '/carts',
         method: 'PUT',

@@ -9,12 +9,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
 import javax.persistence.StoredProcedureQuery;
+import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -146,5 +150,37 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+//    @Override
+//    @Transactional
+//    public void updateProductQuantities(List<Item> cart) throws SQLException {
+//        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("sp_update_product_quantity");
+//        query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+//        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
+//
+//            for (Item item : cart) {
+//                Product p = productRepository.findById(item.getProduct().getProductId())
+//                        .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm " + item.getProduct().getProductName()));
+//                query.setParameter(1, item.getProduct().getProductId());
+//                query.setParameter(2, item.getQuantity());
+//                query.executeUpdate();
+//            }
+//    }
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Override
+    public void updateProductQuantities(List<Item> cart) throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            String sql = "{CALL sp_update_product_quantity(?, ?)}";
+            try (CallableStatement stmt = conn.prepareCall(sql)) {
+                for (Item item : cart) {
+                    stmt.setInt(1, item.getProduct().getProductId());
+                    stmt.setInt(2, item.getQuantity());
+                    stmt.execute();
+                }
+            }
+        }
+    }
 
 }

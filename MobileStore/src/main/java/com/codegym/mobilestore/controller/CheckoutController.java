@@ -1,6 +1,8 @@
 package com.codegym.mobilestore.controller;
 
 import com.codegym.mobilestore.model.Item;
+import com.codegym.mobilestore.model.Order;
+import com.codegym.mobilestore.service.order.OrderService;
 import com.codegym.mobilestore.service.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +25,9 @@ public class CheckoutController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping
     public String viewFormCheckout(HttpSession session, RedirectAttributes redirectAttributes) {
@@ -36,20 +43,29 @@ public class CheckoutController {
         }
     }
 
-//    @PostMapping
-//    public String processFormCheckout(Model model, HttpSession session, RedirectAttributes redirectAttributes,
-//                                      @RequestParam Map<String,String> params) {
-//        List<Item> cart = (List<Item>) session.getAttribute("cart");
-//        if (cart == null || cart.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("checkoutError", "No cart found");
-//            return "redirect:/carts";
-//        }
-//
-////        String customerName = params.get("customerName");
-////        String phone = params.get("phone");
-////        String address = params.get("address");
-////        String paymentMethod = params.get("paymentMethod");
-//
-//
-//    }
+    @PostMapping
+    public String processFormCheckout(Model model, HttpSession session, RedirectAttributes redirectAttributes,
+                                      @RequestParam Map<String,String> params) {
+        List<Item> cart = (List<Item>) session.getAttribute("cart");
+        if (cart == null || cart.isEmpty()) {
+            redirectAttributes.addFlashAttribute("checkoutError", "No cart found");
+            return "redirect:/carts";
+        }
+
+        try {
+            Order order = orderService.checkOut(cart, params);
+            model.addAttribute("order", order);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            String formattedDate = order.getOrderDate().format(formatter);
+            model.addAttribute("createdAt", formattedDate);
+            session.removeAttribute("cart");
+            return "checkout/checkout-success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("checkoutError", e.getMessage());
+            return "redirect:/carts";
+        }
+
+    }
+
 }

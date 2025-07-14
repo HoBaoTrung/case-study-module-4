@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.MultiValueMap;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +17,5 @@ public interface ProductService extends IGeneralService<Product> {
     String[] getRangePrice();
     Product getProductById(Integer id);
     void checkAllProductQuantities(List<Item> cart) throws Exception;
+    void updateProductQuantities(List<Item> cart) throws SQLException;
 }
