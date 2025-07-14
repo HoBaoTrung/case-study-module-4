@@ -25,12 +25,15 @@ public class AppInit extends AbstractAnnotationConfigDispatcherServletInitialize
     }
 
     @Override
-    protected Filter[] getServletFilters() {
-        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
-        encodingFilter.setEncoding("UTF-8");
-        encodingFilter.setForceEncoding(true);
-        return new Filter[] { encodingFilter };
+    public void onStartup(javax.servlet.ServletContext servletContext) throws javax.servlet.ServletException {
+        // Gọi super để đảm bảo DispatcherServlet vẫn được khởi tạo
+        super.onStartup(servletContext);
+
+        // Ép encoding UTF-8 trực tiếp ở servlet context
+        servletContext.setRequestCharacterEncoding("UTF-8");
+        servletContext.setResponseCharacterEncoding("UTF-8");
     }
+
 
     @Override
     protected void customizeRegistration(javax.servlet.ServletRegistration.Dynamic registration) {
