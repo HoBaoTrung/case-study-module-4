@@ -60,9 +60,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 )
                 .formLogin(Customizer.withDefaults());
         http.authorizeHttpRequests(author -> author
+                                .requestMatchers("/products/*/edit").hasRole("ADMIN")
                                 .requestMatchers("/checkout/**").authenticated()
                                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/register", "/", "/products").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/register", "/", "/products/**").permitAll()
                                 .requestMatchers("/carts/**").permitAll()
 //                        .requestMatchers("/user**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 //                        .requestMatchers("/admin**").hasRole("ADMIN")

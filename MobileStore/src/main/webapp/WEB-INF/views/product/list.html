@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -30,7 +31,12 @@
 
 <body>
 <header th:replace="fragments/header :: header"></header>
-
+<div sec:authorize="hasRole('ADMIN')">
+    <a th:href="@{'/products/add'}"
+       class="btn btn-outline-success btn-lg" >
+        <i class="fa-solid fa-circle-plus"></i> Thêm sản phẩm
+    </a>
+</div>
 <div class="container" style="margin-top: 5%">
     <div class="row">
 

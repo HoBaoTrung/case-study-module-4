@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <th:block th:replace="fragments/layout :: commonHead"></th:block>
+  <title>Thông tin sản phẩm</title>
+</head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<div class="container py-5" style="margin-top: 5%">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow rounded-4 border-0">
+        <div class="row g-0">
+          <div class="col-md-5">
+            <img th:src="@{${product.imageUrl}}" class="img-fluid rounded-start w-100" alt="Ảnh sản phẩm">
+          </div>
+          <div class="col-md-7">
+            <div class="card-body">
+              <h3 class="card-title fw-bold mb-3" th:text="${product.productName}">Tên sản phẩm</h3>
+
+              <p class="mb-2">
+                <strong>Mô tả:</strong><br>
+                <span th:text="${product.description}"></span>
+              </p>
+
+              <p class="mb-2">
+                <strong>Giá:</strong>
+                <span class="text-danger fw-semibold" th:text="${#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')}"></span> VNĐ
+              </p>
+
+              <p class="mb-2">
+                <strong>Số lượng còn:</strong>
+                <span th:text="${product.stockQuantity}"></span> sản phẩm
+              </p>
+
+              <p class="mb-2">
+                <strong>Thương hiệu:</strong>
+                <span th:text="${product.brand.brandName}"></span>
+              </p>
+
+              <p class="mb-4">
+                <strong>Danh mục:</strong>
+                <span th:text="${product.category.categoryName}"></span>
+              </p>
+
+              <div class="d-grid gap-2">
+                <button th:if="${product.stockQuantity > 0}"
+                        class="btn btn-danger btn-lg add-to-cart"
+                        th:attr="data-id=${product.productId}, data-name=${product.productName}">
+                  <i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng
+                </button>
+
+                <div sec:authorize="hasRole('ADMIN')">
+                  <a th:href="@{'/products/' + ${product.productId} + '/edit'}"
+                     class="btn btn-outline-warning btn-lg" >
+                    <i class="fa-solid fa-gear"></i> Chỉnh sửa sản phẩm
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer th:replace="fragments/layout :: footer"></footer>
+<script th:src="@{/js/product/list.js}"></script>
+</body>
+</html>

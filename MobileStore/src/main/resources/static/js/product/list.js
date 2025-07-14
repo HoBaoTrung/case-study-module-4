@@ -6,8 +6,6 @@ $(document).ready(function () {
         const productId = $(this).data('id');
         const productName = $(this).data('name');
 
-
-
         $.ajax({
             url: '/carts',
             type: 'POST',

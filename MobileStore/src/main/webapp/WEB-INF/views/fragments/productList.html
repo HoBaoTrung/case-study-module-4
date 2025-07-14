@@ -1,6 +1,7 @@
 <!-- fragments/productList.html -->
-<div id="productListContent" th:fragment="productListContent">
-    <div class="row row-cols-1 row-cols-md-3 g-4" >
+<div id="productListContent" th:fragment="productListContent"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         <div th:each="p : ${products}" class="col-12 col-sm-6 col-lg-4">
             <div class="product-item">
                 <div class="card h-100 shadow-sm">
@@ -14,11 +15,20 @@
                             <span th:text="${#numbers.formatInteger(p.price, 0, 'COMMA') + '₫'}"></span>
                         </p>
                         <h6 class="text">Số lượng: <span th:text="${p.stockQuantity}"></span></h6>
-                        <a href="#" class="btn btn-primary w-100 mb-3">Xem chi tiết</a>
-                        <button th:if="${p.stockQuantity > 0}" class="btn btn-danger w-100 add-to-cart"
+                        <a th:href="@{'/products/' + ${p.productId}}" class="btn btn-primary w-100 mb-3">Xem chi
+                            tiết
+                        </a>
+
+                        <button th:if="${p.stockQuantity > 0}" class="btn btn-danger w-100 add-to-cart mb-3"
                                 th:attr="data-id=${p.productId}, data-name=${p.productName}">
                             <i class="fa fa-shopping-cart"></i> Thêm vào giỏ
                         </button>
+
+                        <a th:href="@{'/products/' + ${p.productId} + '/edit'}">
+                            <button sec:authorize="hasRole('ADMIN')" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="fa-solid fa-gear"></i> Chỉnh sửa
+                            </button>
+                        </a>
                         <h6 th:if="${p.stockQuantity == 0}" class="text-danger text-center">(Hết hàng)</h6>
                     </div>
                 </div>
