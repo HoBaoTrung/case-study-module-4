@@ -13,16 +13,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+
 
 @Controller
 @RequestMapping("/products")
@@ -82,30 +82,56 @@ public class ProductController {
     }
 
     @GetMapping("/add")
-    @Secured("ROLE_ADMIN")
     public String showAddForm(Model model) {
+        model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("product", new Product());
+        model.addAttribute("formAction","/products/add");
+
         return "product/product-form";
     }
 
     @PostMapping("/add")
-    @Secured("ROLE_ADMIN")
-    public String addProduct(@ModelAttribute("product") Product product) {
-        productService.save(product);
+    public String addProduct(@ModelAttribute("product") Product product,
+                             @RequestParam Map<String,String> params
+//                             @RequestParam("brandId") String brandId,
+//                             @RequestParam("categoryId") String categoryId,
+            ,@RequestParam("imageFile") MultipartFile imageFile
+    ) {
+        System.out.println(params);
+        System.out.println(product);
+//        Brand brand = brandService.getBrandById(brandId);
+//        Category category = categoryService.getCategoryById(categoryId);
+
+//        product.setBrand(brand);
+//        product.setCategory(category);
+
+        productService.save(product, imageFile);
         return "redirect:/products";
     }
 
     @GetMapping("/{id}/edit")
-    @Secured("ROLE_ADMIN")
     public String showEditForm(@PathVariable Integer id, Model model) {
-        model.addAttribute("product", productService.getProductById(id));
+        Product product = productService.getProductById(id);
+        model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
+        model.addAttribute("product", product);
+        model.addAttribute("formAction","/products/" + product.getProductId() + "/edit");
         return "product/product-form";
     }
 
     @PostMapping("/{id}/edit")
-    @Secured("ROLE_ADMIN")
-    public String updateProduct(@ModelAttribute("product") Product product) {
-        productService.save(product);
+    public String updateProduct(@ModelAttribute("product") Product product,
+//                                @RequestParam("brandId") Integer brandId,
+//                                @RequestParam("categoryId") Integer categoryId,
+                                @RequestParam("imageFile") MultipartFile imageFile) {
+//        Brand brand = brandService.getBrandById(brandId);
+//        Category category = categoryService.getCategoryById(categoryId);
+//
+//        product.setBrand(brand);
+//        product.setCategory(category);
+
+        productService.save(product, imageFile);
         return "redirect:/products/" + product.getProductId();
     }
 

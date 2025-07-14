@@ -1,5 +1,6 @@
 package com.codegym.mobilestore.service.category;
 
+import com.codegym.mobilestore.model.Brand;
 import com.codegym.mobilestore.model.Category;
 import com.codegym.mobilestore.repository.ICategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Iterable<Category> findAll() {
         return categoryRepository.findAll();
+    }
+
+    @Override
+    public Category getCategoryById(Integer id) {
+        return categoryRepository.findById(id).get();
     }
 }

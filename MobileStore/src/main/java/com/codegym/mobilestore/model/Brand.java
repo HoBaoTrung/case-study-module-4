@@ -2,6 +2,7 @@ package com.codegym.mobilestore.model;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Brand {
@@ -64,4 +65,23 @@ public class Brand {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Brand)) return false;
+        Brand brand = (Brand) o;
+        return Objects.equals(brandId, brand.brandId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(brandId);
+    }
+
+    @Override
+    public String toString() {
+        return brandId != null ? brandId.toString() : "";
+    }
+
 }

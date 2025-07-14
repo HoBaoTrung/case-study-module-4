@@ -4,5 +4,6 @@ import com.codegym.mobilestore.model.Brand;
 import com.codegym.mobilestore.service.IGeneralService;
 
 public interface BrandService extends IGeneralService<Brand> {
+    Brand getBrandById(Integer id);
 
 }

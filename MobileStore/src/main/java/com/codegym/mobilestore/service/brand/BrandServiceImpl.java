@@ -30,4 +30,9 @@ private IBrandRepository brandRepository;
     public Iterable<Brand> findAll() {
         return brandRepository.findAll();
     }
+
+    @Override
+    public Brand getBrandById(Integer id) {
+        return brandRepository.findById(id).get();
+    }
 }

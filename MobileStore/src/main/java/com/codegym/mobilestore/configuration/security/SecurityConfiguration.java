@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,10 +18,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserServiceImpl userService;
@@ -59,26 +62,33 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin(formLogin -> formLogin.successHandler(customSuccessHandle())
                 )
                 .formLogin(Customizer.withDefaults());
-        http.authorizeHttpRequests(author -> author
-                                .requestMatchers("/products/*/edit").hasRole("ADMIN")
-                                .requestMatchers("/checkout/**").authenticated()
-                                .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/register", "/", "/products/**").permitAll()
-                                .requestMatchers("/carts/**").permitAll()
-//                        .requestMatchers("/user**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-//                        .requestMatchers("/admin**").hasRole("ADMIN")
-                                .requestMatchers(
-                                        "/css/**",
-                                        "/js/**",
-                                        "/images/**",
-                                        "/webjars/**",
-                                        "/fonts/**"
-                                ).permitAll()
-                                .anyRequest().denyAll()
-                )
 
-                .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
+        http.authorizeHttpRequests(author -> author
+                // ADMIN: ưu tiên trước
+                .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
+
+                // Các route yêu cầu login
+                .requestMatchers("/checkout/**").authenticated()
+
+                // Các route public
+                .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/register", "/").permitAll()
+
+                // Cuối cùng mới cho phép tất cả GET đến /products/**
+                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+
+                // Static resources
+                .requestMatchers("/css/**", "/js/**", "/images/**","/carts/**").permitAll()
+
+                // Chặn tất cả còn lại
+                .anyRequest().denyAll()
+        ) .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
 //        http.csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/products/add")
+        );
+
         //http.cors();
         http
                 // ... other configurations

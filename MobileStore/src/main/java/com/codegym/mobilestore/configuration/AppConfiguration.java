@@ -1,9 +1,15 @@
 package com.codegym.mobilestore.configuration;
 
 
+import com.codegym.mobilestore.component.BrandFormatter;
+import com.codegym.mobilestore.component.CategoryFormatter;
+import com.codegym.mobilestore.service.brand.BrandService;
+import com.codegym.mobilestore.service.category.CategoryService;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -19,7 +26,9 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.MultipartFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -31,7 +40,12 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Properties;
 
 @Configuration
@@ -83,6 +97,7 @@ public class AppConfiguration implements WebMvcConfigurer, ApplicationContextAwa
     public CommonsMultipartResolver getResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
         resolver.setMaxUploadSizePerFile(100 * 1024 * 1024); // 100 MB
+        resolver.setDefaultEncoding("UTF-8");
         return resolver;
     }
 
@@ -146,11 +161,34 @@ public class AppConfiguration implements WebMvcConfigurer, ApplicationContextAwa
         properties.setProperty("hibernate.physical_naming_strategy", "org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy");
         properties.setProperty("hibernate.implicit_naming_strategy", "org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy");
 
-//        properties.setProperty("hibernate.show_sql", "true"); // Hiển thị SQL trong console
-//        properties.setProperty("hibernate.format_sql", "true"); // Format SQL cho dễ đọc
-
         return properties;
     }
 
 
+    @Bean
+    public CategoryFormatter categoryFormatter(CategoryService categoryService) {
+        return new CategoryFormatter(categoryService);
+    }
+
+    @Bean
+    public BrandFormatter brandFormatter(BrandService brandService) {
+        return new BrandFormatter(brandService);
+    }
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+
+        registry.addFormatter(categoryFormatter(null));
+        registry.addFormatter(brandFormatter(null));
+    }
+//@Autowired
+//private CategoryFormatter categoryFormatter;
+
+//    @Autowired
+//    private BrandFormatter brandFormatter;
+//
+//    @Override
+//    public void addFormatters(FormatterRegistry registry) {
+////        registry.addFormatter(categoryFormatter);
+//        registry.addFormatter(brandFormatter);
+//    }
 }

@@ -3,6 +3,7 @@ package com.codegym.mobilestore.service.product;
 import com.codegym.mobilestore.model.Item;
 import com.codegym.mobilestore.model.Product;
 import com.codegym.mobilestore.repository.IProductRepository;
+import com.codegym.mobilestore.service.CloudinaryService;
 import com.codegym.mobilestore.specification.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import javax.persistence.ParameterMode;
@@ -31,8 +33,18 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     IProductRepository productRepository;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Override
     public Product save(Product product) {
+        return productRepository.save(product);
+    }
+
+
+    public Product save(Product product, MultipartFile imageFile){
+        String imageURL = cloudinaryService.upload(imageFile);
+        product.setImageUrl(imageURL);
         return productRepository.save(product);
     }
 
@@ -149,22 +161,6 @@ public class ProductServiceImpl implements ProductService {
             }
         }
     }
-
-//    @Override
-//    @Transactional
-//    public void updateProductQuantities(List<Item> cart) throws SQLException {
-//        StoredProcedureQuery query = entityManager.createStoredProcedureQuery("sp_update_product_quantity");
-//        query.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
-//        query.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
-//
-//            for (Item item : cart) {
-//                Product p = productRepository.findById(item.getProduct().getProductId())
-//                        .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm " + item.getProduct().getProductName()));
-//                query.setParameter(1, item.getProduct().getProductId());
-//                query.setParameter(2, item.getQuantity());
-//                query.executeUpdate();
-//            }
-//    }
 
     @Autowired
     private DataSource dataSource;

@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Mobile Store</title>
-    <th:block th:replace="fragments/layout :: commonHead"></th:block>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+    <th:block th:insert="fragments/layout :: csrfHead"></th:block>
     <link rel="stylesheet" th:href="@{/css/product/list.css}">
     <style>
         table {
