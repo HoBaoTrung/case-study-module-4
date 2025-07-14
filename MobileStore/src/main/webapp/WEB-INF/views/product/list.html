@@ -1,35 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giỏ hàng của bạn</title>
-    <th:block th:insert="fragments/layout :: head"></th:block>
+    <title>Mobile Store</title>
+    <th:block th:replace="fragments/layout :: commonHead"></th:block>
     <link rel="stylesheet" th:href="@{/css/product/list.css}">
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .total {
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
 <header th:replace="fragments/header :: header"></header>
-<style>
-    table {
-        border-collapse: collapse;
-        margin: 20px auto;
-    }
 
-    th, td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    .total {
-        font-weight: bold;
-    }
-</style>
-<div class="container" style="margin-top: 10%">
+<div class="container" style="margin-top: 5%">
     <div class="row">
 
         <!-- Cột lọc sản phẩm bên trái -->

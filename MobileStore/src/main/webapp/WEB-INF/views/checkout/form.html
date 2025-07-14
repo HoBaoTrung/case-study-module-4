@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Giỏ hàng của bạn</title>
-  <th:block th:insert="fragments/layout :: head"></th:block>
+<!--  <th:block th:replace="fragments/layout :: commonHead"></th:block>-->
 </head>
 <body>
 <style>
@@ -51,6 +51,8 @@
 <div class="form-container">
   <h2>Thông tin giao hàng</h2>
   <form action="checkout" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
     <label for="customerName">Họ tên:</label>
     <input id="customerName" type="text" name="customerName" required>
 

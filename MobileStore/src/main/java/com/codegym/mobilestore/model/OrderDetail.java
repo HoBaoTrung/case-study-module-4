@@ -18,7 +18,12 @@ public class OrderDetail {
     @MapsId("productId")
     @JoinColumn(name = "product_id")
     private Product product;
+
     private int quantity;
+
+    public BigDecimal getLineTotal() {
+        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
 
     public OrderDetail() {}
 
@@ -56,5 +61,13 @@ public class OrderDetail {
         return product != null
                 ? product.getPrice().multiply(BigDecimal.valueOf(quantity)).doubleValue()
                 : 0;
+    }
+
+    public OrderDetailId getId() {
+        return id;
+    }
+
+    public void setId(OrderDetailId id) {
+        this.id = id;
     }
 }

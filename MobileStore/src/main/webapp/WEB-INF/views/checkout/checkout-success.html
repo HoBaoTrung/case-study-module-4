@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cảm ơn bạn đã mua hàng!</title>
+    <th:block th:replace="fragments/layout :: commonHead"></th:block>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .invoice {
+            background: #fff;
+            padding: 20px;
+            margin: auto;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        th:first-child, td:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        th:last-child, td:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
+            box-shadow: 0 0 4px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+    </style>
+   </head>
+<body class="mt-5">
+<header th:replace="fragments/header :: header"></header>
+<div  style="margin-top: 5%" class="invoice" th:with="vnLocale=${T(java.util.Locale).forLanguageTag('vi-VN')}">
+    <h2>Cảm ơn bạn đã mua hàng!</h2>
+    <p><strong>Mã đơn hàng:</strong> <span th:text="${order.id}"></span></p>
+    <p><strong>Khách hàng:</strong> <span th:text="${order.getShipInfo().getCustomerName()}"></span></p>
+    <p><strong>Số điện thoại:</strong> <span th:text="${order.getShipInfo().getPhoneNumber()}"></span></p>
+    <p><strong>Địa chỉ giao hàng:</strong> <span th:text="${order.getShipInfo().getAddress()}"></span></p>
+    <p><strong>Ngày tạo:</strong> <span th:text="${createdAt}"></span></p>
+
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${order.getOrderDetails()}">
+                <td><img class="avatar" th:src="${item.product.imageUrl}" /></td>
+                <td th:text="${item.product.productName}"></td>
+                <td th:text="${item.quantity}"></td>
+                <td th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 2, 'POINT')} + ' ₫'"></td>
+                <td th:text="${#numbers.formatDecimal(item.getLineTotal(), 0, 'COMMA', 2, 'POINT')} + ' ₫'"></td>
+  </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="total">Tổng cộng:
+        <span th:text="${#numbers.formatDecimal(order.getTotalPrice(), 0, 'COMMA', 2, 'POINT')} + ' ₫'"></span>
+    </p>
+
+    <button class="btn-print btn btn-danger" onclick="window.print()">🖨️ In hóa đơn</button>
+    <a th:href="@{/products}" class="btn btn-primary">Tiếp tục mua sắm</a>
+</div>
+
+<!-- Confetti.js -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 }
+    });
+</script>
+
+</body>
+</html>

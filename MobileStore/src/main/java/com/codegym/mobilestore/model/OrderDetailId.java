@@ -6,13 +6,13 @@ import java.util.Objects;
 @Embeddable
 public class OrderDetailId implements Serializable {
 
-    private Long orderId;
-    private Long productId;
+    private Integer orderId;
+    private Integer productId;
 
 
     public OrderDetailId() {}
 
-    public OrderDetailId(Long orderId, Long productId) {
+    public OrderDetailId(Integer orderId, Integer productId) {
         this.orderId = orderId;
         this.productId = productId;
     }
@@ -31,19 +31,19 @@ public class OrderDetailId implements Serializable {
         return Objects.hash(orderId, productId);
     }
 
-    public Long getOrderId() {
+    public Integer getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(Integer orderId) {
         this.orderId = orderId;
     }
 
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 }
