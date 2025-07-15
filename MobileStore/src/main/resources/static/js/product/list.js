@@ -41,8 +41,8 @@ $(document).ready(function () {
         minPriceLabel.textContent = formatCurrency(minPrice.value);
         maxPriceLabel.textContent = formatCurrency(maxPrice.value);
 
-        const minPercent = (minPrice.value / minPrice.max) * 100;
-        const maxPercent = (maxPrice.value / maxPrice.max) * 100;
+        const minPercent = (minPrice.value / minPrice.max) * 1000;
+        const maxPercent = (maxPrice.value / maxPrice.max) * 1000;
 
         minPriceLabel.style.left = `calc(${minPercent}% - 30px)`;
         maxPriceLabel.style.left = `calc(${maxPercent}% - 30px)`;

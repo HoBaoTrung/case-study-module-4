@@ -86,7 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         ) .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers("/products/add")
+                .ignoringRequestMatchers("/products/add","/products/*/edit")
         );
 
         //http.cors();

@@ -15,9 +15,10 @@
                 <h3 class="mb-4 text-center"
                     th:text="${product.productId == null ? 'Thêm sản phẩm mới' : 'Chỉnh sửa sản phẩm'}">Tiêu đề</h3>
 
-                <form th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${product}">
+                <form th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${product}" id="productForm">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-<!--   không cần vì dùng th:action   <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
+                    <input type="hidden" th:field="*{productId}" class="form-control">
+                    <!--   không cần vì dùng th:action   <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
                     <div class="mb-3">
                         <label class="form-label">Tên sản phẩm</label>
                         <input type="text" th:field="*{productName}" class="form-control" required/>
@@ -74,9 +75,14 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="fa fa-save"></i>
-                            <span th:text="${product.productId == null ? 'Thêm sản phẩm' : 'Cập nhật'}">Gửi</span>
+                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                           <span id="btnContent">
+                                <i class="fa fa-save"></i>
+                                <span th:text="${product.productId == null ? 'Thêm sản phẩm' : 'Cập nhật'}">Gửi</span>
+                            </span>
+                            <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none" role="status"
+                                  aria-hidden="true">
+                            </span>
                         </button>
                         <a th:href="@{/products}" class="btn btn-secondary btn-lg">
                             <i class="fa fa-arrow-left"></i> Quay lại
@@ -106,6 +112,18 @@
         }
     }
 
+    document.getElementById("productForm").addEventListener("submit", function () {
+        const btn = document.getElementById("submitBtn");
+        const spinner = document.getElementById("loadingSpinner");
+        const btnContent = document.getElementById("btnContent");
+
+        // Ẩn text, hiện spinner
+        btnContent.classList.add("d-none");
+        spinner.classList.remove("d-none");
+
+        // Disable toàn bộ nút
+        btn.disabled = true;
+    });
 </script>
 </body>
 </html>

@@ -43,7 +43,13 @@ public class ProductServiceImpl implements ProductService {
 
 
     public Product save(Product product, MultipartFile imageFile){
-        String imageURL = cloudinaryService.upload(imageFile);
+        String imageURL = "";
+        if(!imageFile.isEmpty()){
+            imageURL = cloudinaryService.upload(imageFile);
+        }else{
+            imageURL = product.getImageUrl();
+        }
+
         product.setImageUrl(imageURL);
         return productRepository.save(product);
     }
@@ -109,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
         Specification<Product> spec = ProductSpecification.filterProducts(
                 keyword, minPrice, maxPrice, brads, categories
         );
-
+List<Product> p = productRepository.findAll(spec);
         return productRepository.findAll(spec, pageable);
 
     }

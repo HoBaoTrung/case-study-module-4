@@ -21,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 
@@ -60,8 +61,18 @@ public class ProductController {
         // Luôn thêm các biến nếu là trang đầy đủ
         if (!fragment) {
             String[] rangeValues = productService.getRangePrice();
-            model.addAttribute("minPrice", rangeValues[0]);
-            model.addAttribute("maxPrice", rangeValues[1]);
+            String minPriceStr = rangeValues[0];
+            String maxPriceStr = rangeValues[1];
+            model.addAttribute("minPrice", minPriceStr);
+            model.addAttribute("maxPrice", maxPriceStr);
+            BigDecimal minPrice = new BigDecimal(minPriceStr);
+            BigDecimal maxPrice = new BigDecimal(maxPriceStr);
+            BigDecimal range = maxPrice.subtract(minPrice);
+
+            int step = range.compareTo(BigDecimal.valueOf(5_000_000)) > 0 ? 100_000_000
+                    : range.compareTo(BigDecimal.valueOf(1_000_000)) > 0 ? 50_000_000
+                    : 1000;
+
             model.addAttribute("categories", categoryService.findAll());
             model.addAttribute("brands", brandService.findAll());
         }
@@ -92,20 +103,9 @@ public class ProductController {
     }
 
     @PostMapping("/add")
-    public String addProduct(@ModelAttribute("product") Product product,
-                             @RequestParam Map<String,String> params
-//                             @RequestParam("brandId") String brandId,
-//                             @RequestParam("categoryId") String categoryId,
+    public String addProduct(@ModelAttribute("product") Product product
             ,@RequestParam("imageFile") MultipartFile imageFile
     ) {
-        System.out.println(params);
-        System.out.println(product);
-//        Brand brand = brandService.getBrandById(brandId);
-//        Category category = categoryService.getCategoryById(categoryId);
-
-//        product.setBrand(brand);
-//        product.setCategory(category);
-
         productService.save(product, imageFile);
         return "redirect:/products";
     }
@@ -122,15 +122,9 @@ public class ProductController {
 
     @PostMapping("/{id}/edit")
     public String updateProduct(@ModelAttribute("product") Product product,
-//                                @RequestParam("brandId") Integer brandId,
-//                                @RequestParam("categoryId") Integer categoryId,
-                                @RequestParam("imageFile") MultipartFile imageFile) {
-//        Brand brand = brandService.getBrandById(brandId);
-//        Category category = categoryService.getCategoryById(categoryId);
-//
-//        product.setBrand(brand);
-//        product.setCategory(category);
-
+                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile ) {
+        Product oldProduct = productService.getProductById(product.getProductId());
+        product.setImageUrl(oldProduct.getImageUrl());
         productService.save(product, imageFile);
         return "redirect:/products/" + product.getProductId();
     }

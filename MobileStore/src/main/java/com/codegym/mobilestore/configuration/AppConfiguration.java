@@ -180,15 +180,4 @@ public class AppConfiguration implements WebMvcConfigurer, ApplicationContextAwa
         registry.addFormatter(categoryFormatter(null));
         registry.addFormatter(brandFormatter(null));
     }
-//@Autowired
-//private CategoryFormatter categoryFormatter;
-
-//    @Autowired
-//    private BrandFormatter brandFormatter;
-//
-//    @Override
-//    public void addFormatters(FormatterRegistry registry) {
-////        registry.addFormatter(categoryFormatter);
-//        registry.addFormatter(brandFormatter);
-//    }
 }
