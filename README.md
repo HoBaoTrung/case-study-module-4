@@ -92,14 +92,12 @@ src/
 
 ## 📷 Screenshots
 
-> * Product listing with filters  
-![coccoc_screenshot_localhost.jpg](../../Downloads/coccoc_screenshot_localhost.jpg)
-> * Add product form  
-![coccoc_screenshot_localhost (1).jpg](../../Downloads/coccoc_screenshot_localhost%20%281%29.jpg)
-> * Cart session demo
-![Recording2025-07-15111044-ezgif.com-video-to-gif-converter.gif](../../Downloads/Recording2025-07-15111044-ezgif.com-video-to-gif-converter.gif)
-> * AJAX pagination in action
-![Recording2025-07-15111432-ezgif.com-video-to-gif-converter.gif](../../Downloads/Recording2025-07-15111432-ezgif.com-video-to-gif-converter.gif)
+> * Product listing with filters
+![coccoc_screenshot_localhost.jpg](image/coccoc_screenshot_localhost.jpg)
+> * Add product form
+![coccoc_screenshot_localhost (1).jpg](image/coccoc_screenshot_localhost%20%281%29.jpg)
+> * Cart session demo![Recording2025-07-15111044-ezgif.com-video-to-gif-converter.gif](image/Recording2025-07-15111044-ezgif.com-video-to-gif-converter.gif)
+> * AJAX pagination in action![Recording2025-07-15111432-ezgif.com-video-to-gif-converter.gif](image/Recording2025-07-15111432-ezgif.com-video-to-gif-converter.gif)
 ---
 
 ## 🚀 How to Run
