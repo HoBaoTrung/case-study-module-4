@@ -41,6 +41,15 @@ A feature-rich web application for a mobile phone store, built using **Spring MV
 * Update or remove items
 * Validate product availability before adding
 
+### 🛡️Role
+
+* ADMIN 
+  * username: admin
+  * password: 12345
+* CUSTOMER
+  * username: user1
+  * password: 12345
+
 ### 🔐 User Features
 
 * CSRF protection (custom-configured for file uploads)
