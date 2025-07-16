@@ -19,6 +19,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -154,6 +155,12 @@ public class AppConfiguration implements WebMvcConfigurer, ApplicationContextAwa
         return transactionManager;
     }
 
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+
     public Properties additionalProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", "update");
@@ -176,7 +183,6 @@ public class AppConfiguration implements WebMvcConfigurer, ApplicationContextAwa
     }
     @Override
     public void addFormatters(FormatterRegistry registry) {
-
         registry.addFormatter(categoryFormatter(null));
         registry.addFormatter(brandFormatter(null));
     }

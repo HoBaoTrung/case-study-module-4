@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -161,20 +162,32 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+//    @Autowired
+//    private DataSource dataSource;
+//
+//    @Override
+//    public void updateProductQuantities(List<Item> cart) throws SQLException {
+//        try (Connection conn = dataSource.getConnection()) {
+//            String sql = "{CALL sp_update_product_quantity(?, ?)}";
+//            try (CallableStatement stmt = conn.prepareCall(sql)) {
+//                for (Item item : cart) {
+//                    stmt.setInt(1, item.getProduct().getProductId());
+//                    stmt.setInt(2, item.getQuantity());
+//                    stmt.execute();
+//                }
+//            }
+//        }
+//    }
+
     @Autowired
-    private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     @Override
-    public void updateProductQuantities(List<Item> cart) throws SQLException {
-        try (Connection conn = dataSource.getConnection()) {
-            String sql = "{CALL sp_update_product_quantity(?, ?)}";
-            try (CallableStatement stmt = conn.prepareCall(sql)) {
-                for (Item item : cart) {
-                    stmt.setInt(1, item.getProduct().getProductId());
-                    stmt.setInt(2, item.getQuantity());
-                    stmt.execute();
-                }
-            }
+    public void updateProductQuantities(List<Item> cart) {
+        for (Item item : cart) {
+            jdbcTemplate.update("CALL sp_update_product_quantity(?, ?)",
+                    item.getProduct().getProductId(),
+                    item.getQuantity());
         }
     }
 
