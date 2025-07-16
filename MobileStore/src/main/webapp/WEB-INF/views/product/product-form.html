@@ -61,7 +61,10 @@
                     <div class="mb-3">
                         <label class="form-label">Ảnh sản phẩm</label>
                         <input type="file" name="imageFile" accept="image/*" class="form-control"
-                               onchange="previewImage(event)"/>
+                               onchange="previewImage(event)"
+                        th:required="${product.productId == null}"
+                        />
+                        <input type="hidden" th:field="*{imageUrl}" class="form-control">
                     </div>
 
                     <!-- Ảnh hiển thị trước (mặc định ẩn nếu thêm mới) -->

@@ -1,4 +1,4 @@
-package com.codegym.mobilestore.service;
+package com.codegym.mobilestore.component;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

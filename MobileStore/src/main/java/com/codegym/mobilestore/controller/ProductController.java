@@ -123,8 +123,6 @@ public class ProductController {
     @PostMapping("/{id}/edit")
     public String updateProduct(@ModelAttribute("product") Product product,
                                 @RequestParam(value = "imageFile", required = false) MultipartFile imageFile ) {
-        Product oldProduct = productService.getProductById(product.getProductId());
-        product.setImageUrl(oldProduct.getImageUrl());
         productService.save(product, imageFile);
         return "redirect:/products/" + product.getProductId();
     }
