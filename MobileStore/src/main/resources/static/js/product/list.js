@@ -1,31 +1,6 @@
 
 $(document).ready(function () {
 
-    // Add to cart (event delegation)
-    $(document).on('click', '.add-to-cart', function () {
-        const productId = $(this).data('id');
-        const productName = $(this).data('name');
-
-        $.ajax({
-            url: '/carts',
-            type: 'POST',
-            data: {
-                action: 'add',
-                id: productId
-            },
-            success: function (response) {
-                swal({
-                    title: "Thêm thành công",
-                    text: productName,
-                    icon: "success"
-                });
-            },
-            error: function () {
-                alert('Thêm thất bại. Vui lòng thử lại.');
-            }
-        });
-    });
-
     // Slider setup
     const minPrice = document.getElementById('minPrice');
     const maxPrice = document.getElementById('maxPrice');

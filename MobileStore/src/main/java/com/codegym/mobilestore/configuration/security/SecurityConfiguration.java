@@ -67,7 +67,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // ADMIN: ưu tiên trước
                 .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
-
+                .requestMatchers(HttpMethod.DELETE, "/products").hasRole("ADMIN")
                 // Các route yêu cầu login
                 .requestMatchers("/checkout/**").authenticated()
 

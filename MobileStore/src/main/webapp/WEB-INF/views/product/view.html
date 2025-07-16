@@ -6,6 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <th:block th:replace="fragments/layout :: commonHead"></th:block>
+  <th:block th:insert="fragments/layout :: csrfHead"></th:block>
   <title>Thông tin sản phẩm</title>
 </head>
 <body>
@@ -62,6 +63,13 @@
                   </a>
                 </div>
 
+                <div sec:authorize="hasRole('ADMIN')">
+                  <button
+                          class="btn btn-outline-danger delete-product"
+                          th:attr="data-id=${product.productId}, data-name=${product.productName}">
+                    <i class="fa fa-trash"></i> Xóa
+                  </button>
+                </div>
 
               </div>
 
@@ -74,6 +82,6 @@
 </div>
 
 <footer th:replace="fragments/layout :: footer"></footer>
-<script th:src="@{/js/product/list.js}"></script>
+<script th:src="@{/js/product/productAction.js}"></script>
 </body>
 </html>

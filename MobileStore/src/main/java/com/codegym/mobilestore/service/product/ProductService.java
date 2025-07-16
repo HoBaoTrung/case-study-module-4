@@ -20,4 +20,5 @@ public interface ProductService extends IGeneralService<Product> {
     void checkAllProductQuantities(List<Item> cart) throws Exception;
     void updateProductQuantities(List<Item> cart) throws SQLException;
     Product save(Product product, MultipartFile imageFile);
+    Product deleteProduct(Integer productId);
 }

@@ -178,4 +178,14 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    @Override
+    public Product deleteProduct(Integer productId){
+        Product product = productRepository.findById(productId).orElse(null);
+        if(product != null) {
+            productRepository.delete(product);
+            return product;
+        }
+        return null;
+    }
+
 }
