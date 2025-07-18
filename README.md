@@ -112,9 +112,9 @@ src/
 ## 🚀 How to Run
 
 1. Clone the repository
-2. Set up the MySQL database and import schema (with sql file)
-3. Configure `application.properties` with DB credentials
-4. Run the application using your preferred IDE or Maven
+2. Configure `secret.properties`
+3. Run the application using your preferred IDE or Gradle
+4. Insert data and procedure (with sql files)
 5. Access the app at `http://localhost:8080/mobilestore`
 
 ---
