@@ -72,17 +72,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .requestMatchers("/checkout/**").authenticated()
 
                 // Các route public
-                .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                .requestMatchers(HttpMethod.GET, "/register", "/").permitAll()
-
-                // Cuối cùng mới cho phép tất cả GET đến /products/**
-                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-
-                // Static resources
-                .requestMatchers("/css/**", "/js/**", "/images/**","/carts/**").permitAll()
+//                .requestMatchers(HttpMethod.POST, "/register").permitAll()
+//                .requestMatchers(HttpMethod.GET, "/register", "/").permitAll()
+//
+//                // Cuối cùng mới cho phép tất cả GET đến /products/**
+//                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+//
+//                // Static resources
+//                .requestMatchers("/css/**", "/js/**", "/images/**","/carts/**").permitAll()
 
                 // Chặn tất cả còn lại
-                .anyRequest().denyAll()
+//                .anyRequest().denyAll()
+                        .anyRequest().permitAll()
         ) .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf

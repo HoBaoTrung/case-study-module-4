@@ -1,9 +1,7 @@
 package com.codegym.mobilestore.configuration;
 
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import javax.servlet.Filter;
 
 public class AppInit extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
@@ -34,11 +32,5 @@ public class AppInit extends AbstractAnnotationConfigDispatcherServletInitialize
         servletContext.setResponseCharacterEncoding("UTF-8");
     }
 
-
-    @Override
-    protected void customizeRegistration(javax.servlet.ServletRegistration.Dynamic registration) {
-        // Bắt buộc để ném NoHandlerFoundException
-        registration.setInitParameter("throwExceptionIfNoHandlerFound", "true");
-    }
 
 }
