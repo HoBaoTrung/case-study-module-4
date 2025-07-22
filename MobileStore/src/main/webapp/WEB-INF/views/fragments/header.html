@@ -28,7 +28,10 @@
                     <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            🧑 <span style="text: white" sec:authentication="name"></span>
+                            🧑 <span th:text="${#authentication.principal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)
+                                                ? #authentication.principal.attributes['name']
+                                                : #authentication.name}"></span>
+
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="/profile">Thông tin cá nhân</a></li>

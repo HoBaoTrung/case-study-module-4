@@ -3,8 +3,11 @@ package com.codegym.mobilestore.configuration.security;
 import com.codegym.mobilestore.service.user.UserService;
 import com.codegym.mobilestore.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
@@ -17,14 +20,42 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 
+import javax.annotation.PostConstruct;
+import java.io.InputStream;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
+@PropertySource("classpath:secret.properties")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+//
+//    @Value("${google.client-id}")
+//    private String clientId;
+//    @PostConstruct
+//    public void testProps() {
+//        System.out.println("📦 clientId from @Value = " + clientId);
+//    }
+//    @Value("${google.client-secret}")
+//    private String clientSecret;
+//
+//    @Value("${google.redirect-uri}")
+//    private String redirectUri;
+
     @Autowired
     private UserServiceImpl userService;
 
@@ -55,8 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     protected void configure(HttpSecurity http) throws Exception {
-        // Disable crsf cho đường dẫn /api/**
-        //http.csrf().ignoringRequestMatchers("/**");
+
         http.httpBasic();
         http
                 .formLogin(formLogin -> formLogin.successHandler(customSuccessHandle())
@@ -64,14 +94,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin(Customizer.withDefaults());
 
         http.authorizeHttpRequests(author -> author
-                // ADMIN: ưu tiên trước
-                .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/products").hasRole("ADMIN")
-                // Các route yêu cầu login
-                .requestMatchers("/checkout/**").authenticated()
+                        // ADMIN: ưu tiên trước
+                        .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/products").hasRole("ADMIN")
+                        // Các route yêu cầu login
+                        .requestMatchers("/checkout/**").authenticated()
 
-                // Các route public
+                        // Các route public
 //                .requestMatchers(HttpMethod.POST, "/register").permitAll()
 //                .requestMatchers(HttpMethod.GET, "/register", "/").permitAll()
 //
@@ -81,13 +111,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                // Static resources
 //                .requestMatchers("/css/**", "/js/**", "/images/**","/carts/**").permitAll()
 
-                // Chặn tất cả còn lại
+                        // Chặn tất cả còn lại
 //                .anyRequest().denyAll()
                         .anyRequest().permitAll()
-        ) .exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
+        ).exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers("/products/add","/products/*/edit")
+                // Disable crsf cho vài đường dẫn /api/**
+                .ignoringRequestMatchers("/products/add", "/products/*/edit")
+        ).oauth2Login(oauth2 -> oauth2
+                .defaultSuccessUrl("/welcome")
         );
 
         //http.cors();
@@ -97,25 +130,37 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .logoutSuccessUrl("/login?logout") // Redirect after successful logout
                         .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.ALL))) // Clears site data including cookies
                 );
-    }
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.inMemoryAuthentication()
-//                .withUser("user").password("{noop}12345").roles("USER")
-//                .and()
-//                .withUser("admin").password("{noop}12345").roles("ADMIN");
-//    }
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeHttpRequests()
-//                .requestMatchers("/").permitAll()
-//                .requestMatchers("/user**").hasRole("USER")
-//                .requestMatchers("/admin**").hasRole("ADMIN")
-//                .and()
-//                .formLogin()
-//                .and()
-//                .logout()
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-//    }
+
+    }
+
+    @Bean
+    public ClientRegistration googleClientRegistration(
+            @Value("${google.client-id}") String clientId,
+            @Value("${google.client-secret}") String clientSecret,
+            @Value("${google.redirect-uri}") String redirectUri
+    ) {
+
+        return ClientRegistration.withRegistrationId("google")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(redirectUri)
+                .scope("openid", "profile", "email")
+                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+                .tokenUri("https://oauth2.googleapis.com/token")
+                .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+                .userInfoUri("https://openidconnect.googleapis.com/v1/userinfo")
+                .userNameAttributeName("sub")
+                .clientName("Google")
+                .build();
+    }
+
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository(ClientRegistration googleClientRegistration) {
+        return new InMemoryClientRegistrationRepository(googleClientRegistration);
+    }
+
+
 }

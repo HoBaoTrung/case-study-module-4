@@ -45,6 +45,14 @@ dependencies {
     implementation group: 'org.springframework.security', name: 'spring-security-taglibs', version: '5.8.0'
     implementation group: 'org.thymeleaf.extras', name: 'thymeleaf-extras-springsecurity5', version: '3.1.0.RELEASE'
 
+    // OAuth2 Client
+    implementation group: 'org.springframework.security', name: 'spring-security-oauth2-client', version: '5.8.0'
+
+    // OAuth2 Core
+    implementation group: 'org.springframework.security', name: 'spring-security-oauth2-core', version: '5.8.0'
+    implementation group: 'org.springframework.security', name: 'spring-security-oauth2-jose', version: '5.8.0'
+
+
 }
 
 test {

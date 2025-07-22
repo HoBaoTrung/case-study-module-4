@@ -1,0 +1,27 @@
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>JSP - Hello World</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1><%= "Hello World!" %>-->
+<!--</h1>-->
+<!--<br/>-->
+<!--<a href="products">Hello Servlet</a>-->
+<!--<span></span>-->
+<!--</body>-->
+<!--</html>-->
+<!-- src/main/resources/templates/index.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome Page</title>
+</head>
+<body>
+<h1>👋 Chào mừng, <span th:text="${name}">Tên người dùng</span>!</h1>
+<p>📧 Email của bạn là: <span th:text="${email}">Email người dùng</span></p>
+<a th:href="@{/products}">Xem List</a>
+</body>
+</html>
