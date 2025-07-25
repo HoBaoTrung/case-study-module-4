@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Component;
@@ -17,37 +18,23 @@ import java.util.Collection;
 import java.util.List;
 
 @Component
-public class CustomSuccessHandle extends SimpleUrlAuthenticationSuccessHandler {
+public class CustomSuccessHandle extends SavedRequestAwareAuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-//    @Override
-//    public void onAuthenticationSuccess(HttpServletRequest request,
-//                                        HttpServletResponse response,
-//                                        Authentication authentication)
-//            throws IOException, ServletException {
-//
-//        // ✅ Lấy thông tin người dùng
-//        String username = authentication.getName(); // tên đăng nhập
-//        Object principal = authentication.getPrincipal(); // có thể cast về UserDetails
-//
-//        // ✅ Ghi log, redirect, hoặc lưu thông tin cần thiết
-//        System.out.println("Đăng nhập thành công với username: " + username);
-//        System.out.println("Đăng nhập thành công với principal: " + principal.toString());
-//
-//        // Ví dụ: chuyển về trang chủ sau đăng nhập
-//        response.sendRedirect("/products");
-//
-//        // hoặc gọi super:
-//        // super.onAuthenticationSuccess(request, response, authentication);
-//    }
-
     @Override
-    protected void handle(HttpServletRequest request,
-                          HttpServletResponse response,
-                          Authentication authentication)
-            throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication)
+            throws IOException, ServletException {
+        System.out.println("🔍 Auth principal: " + authentication.getPrincipal().getClass());
+        // ✅ Lấy thông tin người dùng
+        String username = authentication.getName(); // tên đăng nhập
+        Object principal = authentication.getPrincipal(); // có thể cast về UserDetails
 
-//        String targetUrl = determineTargetUrl(authentication);
+        // ✅ Ghi log, redirect, hoặc lưu thông tin cần thiết
+        System.out.println("Đăng nhập thành công với username: " + username);
+        System.out.println("Đăng nhập thành công với principal: " + principal.toString());
+
         SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
         String targetUrl;
         if (savedRequest != null) {
@@ -62,7 +49,33 @@ public class CustomSuccessHandle extends SimpleUrlAuthenticationSuccessHandler {
         }
 
         redirectStrategy.sendRedirect(request, response, targetUrl);
+
+        // hoặc gọi super:
+        // super.onAuthenticationSuccess(request, response, authentication);
     }
+
+//    @Override
+//    protected void handle(HttpServletRequest request,
+//                          HttpServletResponse response,
+//                          Authentication authentication)
+//            throws IOException {
+//
+////        String targetUrl = determineTargetUrl(authentication);
+//        SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+//        String targetUrl;
+//        if (savedRequest != null) {
+//            // Nếu có URL đã lưu, dùng nó để redirect
+//            targetUrl = savedRequest.getRedirectUrl();
+//        } else {
+//            targetUrl="/products";
+//        }
+//        if (response.isCommitted()) {
+//            System.out.println("Can't redirect");
+//            return;
+//        }
+//
+//        redirectStrategy.sendRedirect(request, response, targetUrl);
+//    }
 
     // Phương thức này được sử dụng để lấy ra các role của user
     // hiện tại đang đăng nhập và trả về URL tương ứng

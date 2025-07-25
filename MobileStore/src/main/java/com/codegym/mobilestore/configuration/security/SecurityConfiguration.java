@@ -1,5 +1,7 @@
 package com.codegym.mobilestore.configuration.security;
 
+import com.codegym.mobilestore.service.user.CustomOAuth2UserService;
+import com.codegym.mobilestore.service.user.CustomOidcUserService;
 import com.codegym.mobilestore.service.user.UserService;
 import com.codegym.mobilestore.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
@@ -38,23 +42,10 @@ import java.io.InputStream;
 @PropertySource("classpath:secret.properties")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
     }
-//
-//    @Value("${google.client-id}")
-//    private String clientId;
-//    @PostConstruct
-//    public void testProps() {
-//        System.out.println("📦 clientId from @Value = " + clientId);
-//    }
-//    @Value("${google.client-secret}")
-//    private String clientSecret;
-//
-//    @Value("${google.redirect-uri}")
-//    private String redirectUri;
 
     @Autowired
     private UserServiceImpl userService;
@@ -85,49 +76,46 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userService).passwordEncoder(new BCryptPasswordEncoder(10));
     }
 
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+    @Autowired
+    private CustomOidcUserService customOidcUserService;
+
     protected void configure(HttpSecurity http) throws Exception {
 
         http.httpBasic();
-        http
-                .formLogin(formLogin -> formLogin.successHandler(customSuccessHandle())
-                )
-                .formLogin(Customizer.withDefaults());
+        http.formLogin(formLogin -> formLogin.successHandler(customSuccessHandle())
+        );
 
         http.authorizeHttpRequests(author -> author
-                        // ADMIN: ưu tiên trước
-                        .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/products").hasRole("ADMIN")
-                        // Các route yêu cầu login
-                        .requestMatchers("/checkout/**").authenticated()
+                // ADMIN: ưu tiên trước
+                .requestMatchers(HttpMethod.GET, "/products/add", "/products/*/edit").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/products/add", "/products/*/edit").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/products").hasRole("ADMIN")
+                // Các route yêu cầu login
+                .requestMatchers("/checkout/**").authenticated()
 
-                        // Các route public
-//                .requestMatchers(HttpMethod.POST, "/register").permitAll()
-//                .requestMatchers(HttpMethod.GET, "/register", "/").permitAll()
-//
-//                // Cuối cùng mới cho phép tất cả GET đến /products/**
-//                .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-//
-//                // Static resources
-//                .requestMatchers("/css/**", "/js/**", "/images/**","/carts/**").permitAll()
-
-                        // Chặn tất cả còn lại
-//                .anyRequest().denyAll()
-                        .anyRequest().permitAll()
+                .anyRequest().permitAll()
         ).exceptionHandling(customizer -> customizer.accessDeniedHandler(customAccessDeniedHandler()));
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf
                 // Disable crsf cho vài đường dẫn /api/**
                 .ignoringRequestMatchers("/products/add", "/products/*/edit")
         ).oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/welcome")
+//                .loginPage("/login")
+                        .defaultSuccessUrl("/welcome")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService)
+                        )
         );
 
         //http.cors();
         http
                 // ... other configurations
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout") // Redirect after successful logout
+                        .logoutSuccessUrl("/login") // Redirect after successful logout
                         .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.ALL))) // Clears site data including cookies
                 );
 
@@ -158,8 +146,32 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository(ClientRegistration googleClientRegistration) {
-        return new InMemoryClientRegistrationRepository(googleClientRegistration);
+    public ClientRegistration facebookClientRegistration(
+            @Value("${facebook.client-id}") String clientId,
+            @Value("${facebook.client-secret}") String clientSecret,
+            @Value("${facebook.redirect-uri}") String redirectUri
+    ) {
+        return ClientRegistration.withRegistrationId("facebook")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(redirectUri)
+                .scope("public_profile", "email")
+                .authorizationUri("https://www.facebook.com/v12.0/dialog/oauth")
+                .tokenUri("https://graph.facebook.com/v12.0/oauth/access_token")
+                .userInfoUri("https://graph.facebook.com/me?fields=id,name,email")
+                .userNameAttributeName("id")
+                .clientName("Facebook")
+                .build();
+    }
+
+
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository(
+            ClientRegistration googleClientRegistration
+            ,ClientRegistration facebookClientRegistration) {
+        return new InMemoryClientRegistrationRepository(googleClientRegistration, facebookClientRegistration);
     }
 
 
