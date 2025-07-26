@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="vi">
+      th:lang="${#locale}">
 <head>
     <meta charset="UTF-8">
     <title>Mobile Store</title>
@@ -33,7 +33,7 @@
 <body>
 <header th:replace="fragments/header :: header"></header>
 <div sec:authorize="hasRole('ADMIN')">
-    <a th:href="@{'/products/add'}"
+    <a th:href="@{'/products/add'}" th:text="#{button.addProduct}"
        class="btn btn-outline-success btn-lg" >
         <i class="fa-solid fa-circle-plus"></i> Thêm sản phẩm
     </a>
@@ -43,9 +43,9 @@
 
         <!-- Cột lọc sản phẩm bên trái -->
         <div class="col-md-3 mb-4">
-            <h2 class="mb-4 text-center">Bộ lọc</h2>
+            <h2 class="mb-4 text-center" th:text="#{filter.title}">Bộ lọc</h2>
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white" th:text="#{filter.title}">
                     Bộ lọc
                 </div>
                 <div class="card-body">
@@ -54,14 +54,14 @@
 
                         <!-- Từ khóa tìm kiếm -->
                         <div class="mb-3">
-                            <label for="keyword" class="form-label">Tìm kiếm</label>
+                            <label for="keyword" class="form-label" th:text="#{label.search}">Tìm kiếm</label>
                             <input type="text" class="form-control" id="keyword" name="keyword"
-                                   placeholder="Nhập tên sản phẩm...">
+                                   th:placeholder="#{placeholder.enterProductName}">
                         </div>
 
                         <!-- Danh mục -->
                         <div class="small-container">
-                            <h5 class="mb-3">Danh mục:</h5>
+                            <h5 class="mb-3" th:text="#{label.category}">Danh mục:</h5>
                             <div th:each="cate : ${categories}">
                                 <div class="form-check">
                                     <input class="form-check-input"
@@ -78,7 +78,7 @@
 
                         <!-- Khoảng giá -->
                         <div class="small-container">
-                            <label class="form-label">Chọn khoảng giá:</label>
+                            <label class="form-label" th:text="#{label.priceRange}">Chọn khoảng giá:</label>
                             <div class="range-slider-container">
                                 <div class="price-labels">
         <span class="price-label min-label" id="minPriceLabel"
@@ -103,7 +103,7 @@
 
                         <!-- Hãng -->
                         <div class="small-container">
-                            <h5 class="mb-3">Hãng:</h5>
+                            <h5 class="mb-3" th:text="#{label.brand}">Hãng:</h5>
                             <div th:each="brand : ${brands}">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox"
@@ -119,7 +119,7 @@
 
                         <!-- Nút lọc -->
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Áp dụng</button>
+                            <button th:text="#{button.applyFilter}" type="submit" class="btn btn-primary">Áp dụng</button>
                         </div>
 
                     </form>
@@ -130,7 +130,7 @@
 
         <!-- Cột danh sách sản phẩm bên phải -->
         <div class="col-md-9">
-            <h2 class="mb-4 text-center">Danh sách sản phẩm</h2>
+            <h2 class="mb-4 text-center" th:text="#{title.productList}">Danh sách sản phẩm</h2>
             <div id="productListContainer">
                 <div th:replace="fragments/productList :: productListContent"></div>
             </div>
