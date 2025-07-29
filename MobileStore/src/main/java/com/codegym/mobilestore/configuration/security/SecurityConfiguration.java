@@ -101,7 +101,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf
                 // Disable crsf cho vài đường dẫn /api/**
-                .ignoringRequestMatchers("/products/add", "/products/*/edit")
+                .ignoringRequestMatchers("/products/add", "/products/*/edit","/api/users/**")
         ).oauth2Login(oauth2 -> oauth2
 //                .loginPage("/login")
                         .defaultSuccessUrl("/welcome")
