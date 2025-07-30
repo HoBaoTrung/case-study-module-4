@@ -26,14 +26,9 @@ public class CustomSuccessHandle extends SavedRequestAwareAuthenticationSuccessH
                                         HttpServletResponse response,
                                         Authentication authentication)
             throws IOException, ServletException {
-        System.out.println("🔍 Auth principal: " + authentication.getPrincipal().getClass());
         // ✅ Lấy thông tin người dùng
         String username = authentication.getName(); // tên đăng nhập
         Object principal = authentication.getPrincipal(); // có thể cast về UserDetails
-
-        // ✅ Ghi log, redirect, hoặc lưu thông tin cần thiết
-        System.out.println("Đăng nhập thành công với username: " + username);
-        System.out.println("Đăng nhập thành công với principal: " + principal.toString());
 
         SavedRequest savedRequest = (SavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
         String targetUrl;

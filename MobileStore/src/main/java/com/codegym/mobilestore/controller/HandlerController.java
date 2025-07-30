@@ -23,11 +23,12 @@ public class HandlerController implements ErrorController {
                 message = "Trang bạn yêu cầu không tồn tại (404).";
                 model.addAttribute("message", message);
                 return "err/error_404";
-            } else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-                message = "Lỗi máy chủ nội bộ (500).";
-                model.addAttribute("message", message);
-                return "err/error_500";
             }
+//            else if (statusCode == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+//                message = "Lỗi máy chủ nội bộ (500).";
+//                model.addAttribute("message", message);
+//                return "err/error_500";
+//            }
         }
 
         model.addAttribute("message", message);

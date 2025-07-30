@@ -16,23 +16,24 @@ public class UserPrinciple implements UserDetails {
     private Long id;
 
     private String username;
-
+    private String email;
     private String password;
 
     private Collection<? extends GrantedAuthority> roles;
 
     public UserPrinciple(Long id,
-                         String username, String password,
+                         String username, String password, String email,
                          Collection<? extends GrantedAuthority> roles) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.email = email;
     }
 
     public static UserPrinciple build(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (Role a: user.getRoles()){
+        for (Role a : user.getRoles()) {
             authorities.add(new SimpleGrantedAuthority(a.getName()));
         }
 
@@ -40,6 +41,7 @@ public class UserPrinciple implements UserDetails {
                 user.getId(),
                 user.getUsername(),
                 user.getPassword(),
+                user.getEmail(),
                 authorities
         );
     }
@@ -62,7 +64,6 @@ public class UserPrinciple implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
     }
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -100,7 +101,6 @@ public class UserPrinciple implements UserDetails {
 
     @Override
     public String toString() {
-        return "[username: "+ username + ", password: "+ password +", roles: " + roles + "]";
-
+        return "[username: " + username + ",email: " + email + ", password: " + password + ", roles: " + roles + "]";
     }
 }

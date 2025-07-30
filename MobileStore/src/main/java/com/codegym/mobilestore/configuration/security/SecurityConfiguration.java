@@ -50,6 +50,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserServiceImpl userService;
 
+    @Autowired
+    private CustomOAuth2FailureHandler customOAuth2FailureHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
@@ -82,10 +85,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomOidcUserService customOidcUserService;
 
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
 
         http.httpBasic();
-        http.formLogin(formLogin -> formLogin.successHandler(customSuccessHandle())
+        http.formLogin(form ->
+                form.loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .successHandler(customSuccessHandle())
         );
 
         http.authorizeHttpRequests(author -> author
@@ -101,14 +108,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //        http.csrf(AbstractHttpConfigurer::disable);
         http.csrf(csrf -> csrf
                 // Disable crsf cho vài đường dẫn /api/**
-                .ignoringRequestMatchers("/products/add", "/products/*/edit","/api/users/**")
+                .ignoringRequestMatchers("/products/add", "/products/*/edit", "/api/users/**")
         ).oauth2Login(oauth2 -> oauth2
-//                .loginPage("/login")
-                        .defaultSuccessUrl("/welcome")
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                                .oidcUserService(customOidcUserService)
-                        )
+                .loginPage("/login")
+                .defaultSuccessUrl("/welcome")
+                .failureHandler(customOAuth2FailureHandler)
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(customOAuth2UserService)
+                        .oidcUserService(customOidcUserService)
+                )
         );
 
         //http.cors();
@@ -128,21 +136,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             @Value("${google.client-secret}") String clientSecret,
             @Value("${google.redirect-uri}") String redirectUri
     ) {
-
-        return ClientRegistration.withRegistrationId("google")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(redirectUri)
-                .scope("openid", "profile", "email")
-                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-                .tokenUri("https://oauth2.googleapis.com/token")
-                .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
-                .userInfoUri("https://openidconnect.googleapis.com/v1/userinfo")
-                .userNameAttributeName("sub")
-                .clientName("Google")
-                .build();
+        return buildClientRegistration(
+                "google",
+                clientId,
+                clientSecret,
+                redirectUri,
+                ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+                "https://accounts.google.com/o/oauth2/v2/auth",
+                "https://oauth2.googleapis.com/token",
+                "https://www.googleapis.com/oauth2/v3/certs",
+                "https://openidconnect.googleapis.com/v1/userinfo",
+                "sub",
+                "Google",
+                "openid", "profile", "email"
+        );
     }
 
     @Bean
@@ -151,28 +158,61 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             @Value("${facebook.client-secret}") String clientSecret,
             @Value("${facebook.redirect-uri}") String redirectUri
     ) {
-        return ClientRegistration.withRegistrationId("facebook")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(redirectUri)
-                .scope("public_profile", "email")
-                .authorizationUri("https://www.facebook.com/v12.0/dialog/oauth")
-                .tokenUri("https://graph.facebook.com/v12.0/oauth/access_token")
-                .userInfoUri("https://graph.facebook.com/me?fields=id,name,email")
-                .userNameAttributeName("id")
-                .clientName("Facebook")
-                .build();
+        return buildClientRegistration(
+                "facebook",
+                clientId,
+                clientSecret,
+                redirectUri,
+                ClientAuthenticationMethod.CLIENT_SECRET_POST,
+                "https://www.facebook.com/v12.0/dialog/oauth",
+                "https://graph.facebook.com/v12.0/oauth/access_token",
+                null,
+                "https://graph.facebook.com/me?fields=id,name,email",
+                "id",
+                "Facebook",
+                "public_profile", "email"
+        );
     }
-
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(
-            ClientRegistration googleClientRegistration
-            ,ClientRegistration facebookClientRegistration) {
+            ClientRegistration googleClientRegistration,
+            ClientRegistration facebookClientRegistration
+    ) {
         return new InMemoryClientRegistrationRepository(googleClientRegistration, facebookClientRegistration);
     }
 
+    private ClientRegistration buildClientRegistration(
+            String registrationId,
+            String clientId,
+            String clientSecret,
+            String redirectUri,
+            ClientAuthenticationMethod authMethod,
+            String authorizationUri,
+            String tokenUri,
+            String jwkSetUri,
+            String userInfoUri,
+            String userNameAttribute,
+            String clientName,
+            String... scopes
+    ) {
+        ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(registrationId)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .clientAuthenticationMethod(authMethod)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(redirectUri)
+                .scope(scopes)
+                .authorizationUri(authorizationUri)
+                .tokenUri(tokenUri)
+                .userInfoUri(userInfoUri)
+                .userNameAttributeName(userNameAttribute)
+                .clientName(clientName);
 
+        if (jwkSetUri != null) {
+            builder.jwkSetUri(jwkSetUri);
+        }
+
+        return builder.build();
+    }
 }

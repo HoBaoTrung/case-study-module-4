@@ -10,7 +10,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -18,9 +21,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Autowired
     private IUserRepository iUserRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = iUserRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+        User user = iUserRepository.findByUsername(input);
+
+        if (user == null) {
+            user = iUserRepository.findByEmail(input);
+        }
 
         if (user != null) {
             return UserPrinciple.build(user);
@@ -29,7 +39,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     public UserDTO toDTO(User user) {
-        return new UserDTO(user.getId(), user.getUsername(), user.getRoles());
+        return new UserDTO(user.getId(), user.getUsername(), user.getRoles(),user.getEmail());
     }
 
     @Override
@@ -47,6 +57,41 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     public User getUserByUsername(String username) {
         return iUserRepository.findByUsername(username);
+    }
+
+    @Override
+    public User create(UserDTO dto) {
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        return iUserRepository.save(user);
+    }
+
+    @Override
+    public User update(Long id, UserDTO dto) {
+        User user = iUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        return iUserRepository.save(user);
+    }
+
+    @Override
+    public UserDTO getById(Long id) {
+        User user = iUserRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        return dto;
     }
 
     @Override
