@@ -84,4 +84,23 @@
             window.location.href = url.toString();
         }
     </script>
+
+    <!-- Thêm vào cuối thẻ <script> hiện tại -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const navLinks = document.querySelectorAll(".nav-link, .dropdown-item[href]");
+            const currentPath = window.location.pathname;
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href && (href === currentPath || (href === "/" && currentPath === ""))) {
+                    link.classList.add("active");
+                    link.setAttribute("aria-current", "page");
+                } else {
+                    link.classList.remove("active");
+                    link.removeAttribute("aria-current");
+                }
+            });
+        });
+    </script>
 </header>

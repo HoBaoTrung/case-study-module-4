@@ -20,9 +20,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -98,16 +101,26 @@ public class ProductController {
     public String showAddForm(Model model) {
         model.addAttribute("brands", brandService.findAll());
         model.addAttribute("categories", categoryService.findAll());
-        model.addAttribute("product", new Product());
+        if (!model.containsAttribute("product")) {
+            model.addAttribute("product", new Product());
+        }
         model.addAttribute("formAction","/products/add");
 
         return "product/product-form";
     }
 
     @PostMapping("/add")
-    public String addProduct(@ModelAttribute("product") Product product
-            ,@RequestParam("imageFile") MultipartFile imageFile
+    public String addProduct(@Valid @ModelAttribute("product") Product product, BindingResult result
+            , @RequestParam("imageFile") MultipartFile imageFile
+            , RedirectAttributes redirectAttributes
     ) {
+
+        if (result.hasErrors()) {
+            // Đưa lỗi và product vào flash attribute
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.product", result);
+            redirectAttributes.addFlashAttribute("product", product);
+            return "redirect:/products/add";
+        }
         productService.save(product, imageFile);
         return "redirect:/products";
     }
@@ -123,8 +136,12 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/edit")
-    public String updateProduct(@ModelAttribute("product") Product product,
-                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile ) {
+    public String updateProduct(@Valid @ModelAttribute("product") Product product,BindingResult result,
+                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+                                ) {
+        if (result.hasErrors()) {
+            return "product/product-form";
+        }
         productService.save(product, imageFile);
         return "redirect:/products/" + product.getProductId();
     }

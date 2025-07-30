@@ -1,6 +1,9 @@
 package com.codegym.mobilestore.model;
 
+import com.codegym.mobilestore.annotation.Unique;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -9,6 +12,10 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer productId;
+    @Unique(entityClass = Product.class, fieldName = "productName",
+            message = "Tên sản phẩm đã được sử dụng")
+    @NotEmpty(message = "Tên không để trống")
+    @Column(unique = true, nullable = false)
     private String productName;
     private String description;
     private BigDecimal price;

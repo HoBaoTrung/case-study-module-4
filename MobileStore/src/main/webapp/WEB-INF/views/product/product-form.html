@@ -18,10 +18,13 @@
                 <form th:action="@{${formAction}}" method="post" enctype="multipart/form-data" th:object="${product}" id="productForm">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <input type="hidden" th:field="*{productId}" class="form-control">
-                    <!--   không cần vì dùng th:action   <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>-->
                     <div class="mb-3">
                         <label class="form-label">Tên sản phẩm</label>
-                        <input type="text" th:field="*{productName}" class="form-control" required/>
+                        <input type="text" th:field="*{productName}" class="form-control" />
+                        <span th:if="${#fields.hasErrors('productName')}"
+                              th:errors="*{productName}"
+                              class="text-danger">
+                        </span>
                     </div>
 
                     <div class="mb-3">
