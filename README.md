@@ -1,7 +1,7 @@
 
 # 📱 Mobile Store Web Application
 
-A feature-rich web application for a mobile phone store, built using **Spring MVC**, **Spring Security**, **Thymeleaf**, and **Hibernate/JPA**, with full CRUD functionality, product filtering, file upload support, session-based shopping cart, and AJAX-based UI interactions.
+A feature-rich web application for a mobile phone store, built using **Spring MVC**, **Spring Security**, **Thymeleaf**, and **Hibernate/JPA**, with full CRUD functionality, product filtering, OAuth2 login, multilingual support, file upload support, session-based shopping cart, and AJAX-based UI interactions.
 
 ---
 
@@ -41,6 +41,38 @@ A feature-rich web application for a mobile phone store, built using **Spring MV
 * Update or remove items
 * Validate product availability before adding
 
+### 👥 User Management
+
+#### 🔐 Traditional Login
+
+- Admin and Customer login with form-based authentication
+- CSRF protection (custom-configured for file upload & AJAX)
+- Field validation (server and client-side)
+
+#### 📝 User Registration
+
+- Register new users with form
+- Validate for unique username and email
+- Secure password encryption using BCrypt
+- New users automatically assigned the `CUSTOMER` role
+
+#### 🌐 OAuth2 Login (Google & Facebook)
+
+- Sign in with Google or Facebook using OAuth2
+- Auto-register social users if email does not exist
+- OAuth2 users are assigned `CUSTOMER` role by default
+- Social login buttons in the login form
+
+### 🌍 Internationalization (i18n)
+
+- Full support for:
+  - 🇺🇸 English
+  - 🇻🇳 Vietnamese
+  - 🇯🇵 Japanese
+- Change language via `?lang=en`, `?lang=vi`, `?lang=ja`
+- Multi-language support in UI and validation messages
+- Message files in `resources`
+
 ### 🛡️Role
 
 * ADMIN 
@@ -49,12 +81,8 @@ A feature-rich web application for a mobile phone store, built using **Spring MV
 * CUSTOMER
   * username: user1
   * password: 12345
+* Or login with Google/Facebook
 
-### 🔐 User Features
-
-* CSRF protection (custom-configured for file uploads)
-* Form validation (both server-side and client-side)
-* Localized labels and currency format (VN/EN ready)
 
 ---
 
@@ -76,6 +104,7 @@ src/
     │
     ├── resources/
     │   ├── static/              # Static files (CSS, JS, images)
+    |   ├── messages_*.properties # i18n message files
     │   └── secret.properties    # Sensitive configurations (excluded from Git)
     │
     └── webapp/
@@ -88,14 +117,6 @@ src/
                 └── product/     # Product list, details, add/edit pages
 
 ```
-
----
-
-## ⚙️ Configuration Notes
-
-* Configure file upload location using `application.properties`
-* Add `CommonsMultipartResolver` bean for file uploads
-* CSRF token handling is customized for AJAX and file upload scenarios
 
 ---
 
@@ -120,9 +141,6 @@ src/
 ---
 
 ## 📌 TODOs / Next Steps
-
-* User registration
 * Admin dashboard
-* Internationalization (i18n)
 * PDF/Excel export
 * Voucher/discount integration
